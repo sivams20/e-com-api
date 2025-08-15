@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 import session from "express-session";
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
@@ -8,8 +9,12 @@ import User from "./models/user.js";
 import flash from "connect-flash";
 
 const app = express();
-const port = 5000;
+const port = 5005;
 
+app.use(cors({
+  origin: true,
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(
