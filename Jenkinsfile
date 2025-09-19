@@ -5,14 +5,14 @@ pipeline {
     }
     environment {
         DOCKERHUB_USER = 'sivams20'
-        DOCKERHUB_PASS = credentials('jenkins-docker-hub')
-        DOCKERHUB_CREDENTIALS_ID = 'jenkins-docker-hub'
+        DOCKERHUB_PASS = credentials('Jenkins-docker-git')
+        DOCKERHUB_CREDENTIALS_ID = 'Jenkins-docker-git'
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'master', credentialsId: 'jenkins-docker-hub', url: 'https://github.com/sivams20/e-com-api.git'
+                git branch: 'master', credentialsId: 'Jenkins-docker-git', url: 'https://github.com/sivams20/e-com-api.git'
             }
         }
 
