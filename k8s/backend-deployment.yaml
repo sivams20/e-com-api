@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: e-com-api
+  template:
+    metadata:
+      labels:
+        app: e-com-api
+    spec:
+      containers:
+      - name: e-com-api
+        image: sivams20/e-com-api:latest
+        ports:
+        - containerPort: 5006
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: e-com-api-service
+spec:
+  type: ClusterIP
+  selector:
+    app: e-com-api
+  ports:
+    - port: 5006
+      targetPort: 5006
