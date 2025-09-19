@@ -12,7 +12,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'master', credentialsId: 'Jenkins-docker-git', url: 'https://github.com/sivams20/e-com-api.git'
+                git branch: 'master', credentialsId: 'jenkins-docker-hub', url: 'https://github.com/sivams20/e-com-api.git'
             }
         }
 
