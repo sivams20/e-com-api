@@ -5,7 +5,8 @@ pipeline {
     }
     environment {
         DOCKERHUB_USER = 'sivams20'
-        DOCKERHUB_PASS = credentials('Jenkins-docker-git')
+        DOCKERHUB_PASS = credentials('jenkins-docker-hub')
+        DOCKERHUB_CREDENTIALS_ID = 'jenkins-docker-hub'
     }
 
     stages {
