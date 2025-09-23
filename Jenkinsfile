@@ -3,11 +3,6 @@ pipeline {
     tools {
         nodejs 'NodeJS'
     }
-    environment {
-        DOCKERHUB_USER = 'sivams20'
-        DOCKERHUB_PASS = credentials('Jenkins-docker-git')
-        DOCKERHUB_CREDENTIALS_ID = 'Jenkins-docker-git'
-    }
 
     stages {
         stage('Checkout') {
@@ -18,14 +13,18 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t $DOCKERHUB_USER/e-com-api:latest .'
+                sh 'docker build -t sivams20/e-com-api:latest .'
             }
         }
 
         stage('Push to DockerHub') {
             steps {
-                sh 'echo $DOCKERHUB_PASS | docker login -u $DOCKERHUB_USER --password-stdin'
-                sh 'docker push $DOCKERHUB_USER/e-com-api:latest'
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKERHUB_USER', passwordVariable: 'DOCKERHUB_PASS')]) {
+                    sh """
+                        echo $DOCKERHUB_PASS | docker login -u $DOCKERHUB_USER --password-stdin
+                        docker push $DOCKERHUB_USER/e-com-api:latest
+                    """
+                }
             }
         }
 
