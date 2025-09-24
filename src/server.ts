@@ -4,8 +4,8 @@ import session from "express-session";
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
 import bcrypt from "bcryptjs";
-import connect from "./config/dbconnect.js";
-import User from "./models/user.js";
+import connect from "./config/dbconnect";
+import User from "./models/user";
 import flash from "connect-flash";
 
 const app = express();
@@ -103,3 +103,5 @@ app.listen(port, () => {
 });
 
 connect();
+
+export { app };
