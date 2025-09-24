@@ -11,6 +11,13 @@ pipeline {
             }
         }
 
+        stage('Unit Tests') {
+            steps {
+                sh 'npm install'
+                sh 'npm test'
+            }
+        }        
+
         stage('Build Docker Image') {
             steps {
                 sh 'docker build -t sivams20/e-com-api:latest .'
@@ -28,10 +35,10 @@ pipeline {
             }
         }
 
-        stage('Deploy to Kubernetes') {
-            steps {
-                sh 'kubectl apply -f k8s/backend-deployment.yaml'
-            }
-        }
+        // stage('Deploy to Kubernetes') {
+        //     steps {
+        //         sh 'kubectl apply -f k8s/backend-deployment.yaml'
+        //     }
+        // }
     }
 }
