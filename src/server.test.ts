@@ -19,6 +19,7 @@ import { app } from "./server"; // You may need to export 'app' from server.ts
 describe("Auth API", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+	jest.spyOn(bcrypt, "hash").mockResolvedValue("hashedPassword");
   });
 
   test("GET /loginsuccess returns success message", async () => {
@@ -33,14 +34,14 @@ describe("Auth API", () => {
     expect(res.status).toBe(200);
   });
 
-//   test("POST /register creates a new user", async () => {
-//     (User.prototype.save as jest.Mock) = jest.fn().mockResolvedValue({});
-//     const res = await request(app)
-//       .post("/register")
-//       .send({ email: "test@example.com", password: "password123" });
-//     expect(res.status).toBe(201);
-//     expect(res.text).toBe("User registered");
-//   });
+  // test("POST /register creates a new user", async () => {
+  //   (User.prototype.save as jest.Mock) = jest.fn().mockResolvedValue({});
+  //   const res = await request(app)
+  //     .post("/register")
+  //     .send({ email: "test@example.com", password: "password123" });
+  //   expect(res.status).toBe(201);
+  //   expect(res.text).toBe("User registered");
+  // });
 
   test("POST /register handles errors", async () => {
     (User.prototype.save as jest.Mock) = jest.fn().mockRejectedValue(new Error("fail"));
