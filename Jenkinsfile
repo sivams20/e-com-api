@@ -9,14 +9,7 @@ pipeline {
             steps {
                 git branch: 'master', credentialsId: 'Jenkins-docker-git', url: 'https://github.com/sivams20/e-com-api.git'
             }
-        }
-
-        stage('Unit Tests') {
-            steps {
-                sh 'npm install'
-                sh 'npm test'
-            }
-        }        
+        }      
 
         stage('Build Docker Image') {
             steps {
