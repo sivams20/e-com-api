@@ -1,37 +1,51 @@
 pipeline {
     agent any
-    tools {
-        nodejs 'NodeJS'
+    environment {
+        PROJECT_ID = 'your-gcp-project-id'
+        REGION = 'us-central1'
+        REPO = 'ecom-repo'
+        IMAGE = "us-central1-docker.pkg.dev/${PROJECT_ID}/${REPO}/e-com-api:latest"
+        SERVICE = 'e-com-api'
     }
-
     stages {
         stage('Checkout') {
             steps {
                 git branch: 'master', credentialsId: 'Jenkins-docker-git', url: 'https://github.com/sivams20/e-com-api.git'
             }
-        }      
+        }
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t sivams20/e-com-api:latest .'
+                sh 'docker build -t $IMAGE .'
             }
         }
 
-        stage('Push to DockerHub') {
+        stage('Push to Artifact Registry') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKERHUB_USER', passwordVariable: 'DOCKERHUB_PASS')]) {
-                    sh """
-                        echo $DOCKERHUB_PASS | docker login -u $DOCKERHUB_USER --password-stdin
-                        docker push $DOCKERHUB_USER/e-com-api:latest
-                    """
+                withCredentials([file(credentialsId: 'gcp-credentials', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
+                    sh '''
+                        gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
+                        gcloud auth configure-docker us-central1-docker.pkg.dev
+                        docker push $IMAGE
+                    '''
                 }
             }
         }
 
-        // stage('Deploy to Kubernetes') {
-        //     steps {
-        //         sh 'kubectl apply -f k8s/backend-deployment.yaml'
-        //     }
-        // }
+        stage('Deploy to Cloud Run') {
+            steps {
+                withCredentials([file(credentialsId: 'gcp-credentials', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
+                    sh '''
+                        gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
+                        gcloud config set project $PROJECT_ID
+                        gcloud run deploy $SERVICE \
+                            --image $IMAGE \
+                            --region $REGION \
+                            --platform managed \
+                            --allow-unauthenticated
+                    '''
+                }
+            }
+        }
     }
 }
