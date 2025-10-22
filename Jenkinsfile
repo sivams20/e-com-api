@@ -1,12 +1,6 @@
 pipeline {
     agent any
-    environment {
-        PROJECT_ID = 'your-gcp-project-id'
-        REGION = 'us-central1'
-        REPO = 'ecom-repo'
-        IMAGE = "us-central1-docker.pkg.dev/${PROJECT_ID}/${REPO}/e-com-api:latest"
-        SERVICE = 'e-com-api'
-    }
+
     stages {
         stage('Checkout') {
             steps {
@@ -16,17 +10,17 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t $IMAGE .'
+                sh 'docker build -t us-central1-docker.pkg.dev/nodejs-ci-demo/ecom-repo/e-com-api:latest .'
             }
         }
 
         stage('Push to Artifact Registry') {
             steps {
-                withCredentials([file(credentialsId: 'gcp-credentials', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
+                withCredentials([file(credentialsId: 'gcp-service-account', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
                     sh '''
                         gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
-                        gcloud auth configure-docker us-central1-docker.pkg.dev
-                        docker push $IMAGE
+                        gcloud auth configure-docker us-central1-docker.pkg.dev -q
+                        docker push us-central1-docker.pkg.dev/nodejs-ci-demo/ecom-repo/e-com-api:latest
                     '''
                 }
             }
@@ -34,17 +28,13 @@ pipeline {
 
         stage('Deploy to Cloud Run') {
             steps {
-                withCredentials([file(credentialsId: 'gcp-credentials', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
-                    sh '''
-                        gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
-                        gcloud config set project $PROJECT_ID
-                        gcloud run deploy $SERVICE \
-                            --image $IMAGE \
-                            --region $REGION \
-                            --platform managed \
-                            --allow-unauthenticated
-                    '''
-                }
+                sh '''
+                    gcloud run deploy e-com-api \
+                        --image us-central1-docker.pkg.dev/nodejs-ci-demo/ecom-repo/e-com-api:latest \
+                        --platform managed \
+                        --region us-central1 \
+                        --allow-unauthenticated
+                '''
             }
         }
     }
